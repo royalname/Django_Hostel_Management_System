@@ -1,14 +1,12 @@
 from django.db import models
 
-# Create your models here.
-
 class Room(models.Model):
     room_number = models.CharField(max_length=10)
+    floor = models.IntegerField(default=1)  # ✅ Add default value here
     capacity = models.IntegerField()
-    is_available = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Room {self.room_number}"
+        return f"Room {self.room_number} (Floor {self.floor})"
 
 class Student(models.Model):
     name = models.CharField(max_length=100)

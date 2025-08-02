@@ -4,7 +4,7 @@ from .models import Room, Student
 class RoomForm(forms.ModelForm):
     class Meta:
         model = Room
-        fields = '__all__'
+        fields = ['room_number', 'floor', 'capacity']
 
 class StudentForm(forms.ModelForm):
     class Meta:
