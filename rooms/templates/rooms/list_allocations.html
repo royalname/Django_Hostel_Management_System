@@ -1,0 +1,12 @@
+{% extends 'rooms/base.html' %}
+{% block content %}
+  <h2>Room Allocations</h2>
+  <a href="{% url 'allocate_room' %}">Allocate New Room</a>
+  <ul>
+    {% for allocation in allocations %}
+      <li>{{ allocation.student.name }} → Room {{ allocation.room.room_number }} on {{ allocation.date_allocated }}</li>
+    {% empty %}
+      <li>No allocations yet.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

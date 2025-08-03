@@ -1,0 +1,40 @@
+{% extends 'rooms/base.html' %}
+
+{% block content %}
+  <h2>Room Allocations</h2>
+
+  <p><a href="{% url 'home' %}">← Back to Home</a></p>
+  <p><a href="{% url 'add_allocation' %}">Add New Allocation</a></p>
+
+  <table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Student</th>
+        <th>Room Number</th>
+        <th>Floor</th>
+        <th>Date Allocated</th>
+        <th>Actions</th>  {# Added Actions header #}
+      </tr>
+    </thead>
+    <tbody>
+      {% for allocation in allocations %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ allocation.student.name }}</td>
+        <td>{{ allocation.room.room_number }}</td>
+        <td>{{ allocation.room.floor }}</td>
+        <td>{{ allocation.date_allocated }}</td>
+        <td>
+          <a href="{% url 'edit_allocation' allocation.pk %}">Edit</a> |
+          <a href="{% url 'delete_allocation' allocation.pk %}">Delete</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6">No allocations found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

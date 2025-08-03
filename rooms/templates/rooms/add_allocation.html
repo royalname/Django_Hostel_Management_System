@@ -1,0 +1,10 @@
+{% extends 'rooms/base.html' %}
+
+{% block content %}
+  <h2>Allocate Room to Student</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Allocate</button>
+  </form>
+{% endblock %}

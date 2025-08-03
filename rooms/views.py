@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Room, Student
-from .forms import RoomForm, StudentForm
+from .models import Room, Student , Allocation
+from .forms import RoomForm, StudentForm, AllocationForm
+
 
 # Home – Display all rooms and students
 def home(request):
@@ -94,6 +95,63 @@ def delete_student(request, pk):
         return redirect('list_students')
     return render(request, 'rooms/delete_student.html', {'student': student})
 
+
+# ---------- ROLE CHECKS ----------
+
+def is_warden(user):
+    return user.groups.filter(name='Warden').exists()
+
+def is_admin(user):
+    return user.groups.filter(name='Admin').exists()
+
+# ---------- ALLOCATION VIEWS ----------
+
+def allocate_room(request):
+    if request.method == 'POST':
+        form = AllocationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('list_allocations')
+    else:
+        form = AllocationForm()
+    return render(request, 'rooms/allocate_room.html', {'form': form})
+
+
+def list_allocations(request):
+    allocations = Allocation.objects.select_related('student', 'room').all()
+    return render(request, 'rooms/list_allocations.html', {'allocations': allocations})
+
+def view_allocations(request):
+    allocations = Allocation.objects.select_related('student', 'room').all()
+    return render(request, 'rooms/view_allocations.html', {'allocations': allocations})
+
+def add_allocation(request):
+    if request.method == 'POST':
+        form = AllocationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('view_allocations')
+    else:
+        form = AllocationForm()
+    return render(request, 'rooms/add_allocation.html', {'form': form})
+
+def edit_allocation(request, pk):
+    allocation = get_object_or_404(Allocation, pk=pk)
+    if request.method == 'POST':
+        form = AllocationForm(request.POST, instance=allocation)
+        if form.is_valid():
+            form.save()
+            return redirect('view_allocations')
+    else:
+        form = AllocationForm(instance=allocation)
+    return render(request, 'rooms/edit_allocation.html', {'form': form})
+
+def delete_allocation(request, pk):
+    allocation = get_object_or_404(Allocation, pk=pk)
+    if request.method == 'POST':
+        allocation.delete()
+        return redirect('view_allocations')
+    return render(request, 'rooms/delete_allocation.html', {'allocation': allocation})
 
 # ---------- ROLE CHECKS ----------
 

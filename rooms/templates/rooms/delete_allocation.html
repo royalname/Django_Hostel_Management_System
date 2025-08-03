@@ -1,0 +1,12 @@
+{% extends 'rooms/base.html' %}
+
+{% block content %}
+  <h2>Confirm Deletion</h2>
+  <p>Are you sure you want to delete the allocation of {{ allocation.student.name }} in room {{ allocation.room.room_number }}?</p>
+  
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Yes, Delete</button>
+    <a href="{% url 'view_allocations' %}">Cancel</a>
+  </form>
+{% endblock %}
