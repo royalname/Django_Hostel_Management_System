@@ -2,10 +2,10 @@
 
 {% block content %}
   <h2>Update Student</h2>
-  <form method="post">
+  <form method="post" enctype="multipart/form-data">  <!-- enctype added -->
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Save Changes</button>
   </form>
-  <a href="{% url 'home' %}">Back to Home</a>
+  <a href="{% url 'list_students' %}">Back to Student List</a>
 {% endblock %}

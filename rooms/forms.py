@@ -9,7 +9,7 @@ class RoomForm(forms.ModelForm):
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        fields = ['name', 'email', 'contact', 'address']
+        fields = ['name', 'email', 'contact', 'address', 'roll_number', 'image']  # added image field
 
 class AllocationForm(forms.ModelForm):
     class Meta:

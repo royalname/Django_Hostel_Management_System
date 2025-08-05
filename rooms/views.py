@@ -67,9 +67,10 @@ def list_students(request):
     students = Student.objects.all()
     return render(request, 'rooms/list_students.html', {'students': students})
 
+
 def add_student(request):
     if request.method == 'POST':
-        form = StudentForm(request.POST)
+        form = StudentForm(request.POST, request.FILES)  # add request.FILES here
         if form.is_valid():
             form.save()
             return redirect('list_students')
@@ -80,7 +81,7 @@ def add_student(request):
 def update_student(request, pk):
     student = get_object_or_404(Student, pk=pk)
     if request.method == 'POST':
-        form = StudentForm(request.POST, instance=student)
+        form = StudentForm(request.POST, request.FILES, instance=student)  # add request.FILES here
         if form.is_valid():
             form.save()
             return redirect('list_students')

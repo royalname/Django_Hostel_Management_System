@@ -3,12 +3,32 @@
 
 {% block content %}
   <h2>List of Students</h2>
+
+  <!-- 🔍 Search Bar -->
+  <form method="get" style="margin-bottom: 20px;">
+    <input type="text" name="q" placeholder="Search students..." value="{{ request.GET.q }}">
+    <button type="submit">Search</button>
+  </form>
+
   <a href="{% url 'add_student' %}">Add New Student</a>
+
   <ul>
     {% for student in students %}
-      <li>Name: {{ student.name }} | Email: {{ student.email }} | Contact: {{ student.contact }}</li>
+      <li style="margin-bottom: 20px;">
+        {% if student.image %}
+          <img src="{{ student.image.url }}" alt="{{ student.name }}" width="80" height="80" style="object-fit: cover; border-radius: 5px;">
+        {% else %}
+          <img src="{% static 'rooms/default_profile.jpg' %}" alt="Default" width="80" height="80">
+        {% endif %}
+        <br>
+        Name: {{ student.name }} |
+        Email: {{ student.email }} |
+        Contact: {{ student.contact }} |
+        <a href="{% url 'update_student' student.pk %}">Edit</a> |
+        <a href="{% url 'delete_student' student.pk %}">Delete</a>
+      </li>
     {% empty %}
-      <li>No students registered.</li>
+      <li>No students found.</li>
     {% endfor %}
   </ul>
 {% endblock %}
