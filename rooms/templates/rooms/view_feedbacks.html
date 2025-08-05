@@ -1,0 +1,15 @@
+{% extends 'rooms/base.html' %}
+
+{% block content %}
+  <h2>Feedback List</h2>
+
+  {% if feedbacks %}
+    <ul>
+      {% for feedback in feedbacks %}
+        <li><strong>{{ feedback.student.name }}</strong>: {{ feedback.message }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No feedback available.</p>
+  {% endif %}
+{% endblock %}

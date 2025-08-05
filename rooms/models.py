@@ -1,13 +1,27 @@
 from django.db import models
 
 class Room(models.Model):
+    ROOM_TYPES = [
+        ('Single', 'Single'),
+        ('Double', 'Double'),
+        ('Suite', 'Suite'),
+    ]
+
+    STATUS_CHOICES = [
+        ('Available', 'Available'),
+        ('Occupied', 'Occupied'),
+        ('Maintenance', 'Under Maintenance'),
+    ]
+
     room_number = models.CharField(max_length=10)
     floor = models.IntegerField(default=1)
     capacity = models.IntegerField()
-    is_available = models.BooleanField(default=True)
+    room_type = models.CharField(max_length=10, choices=ROOM_TYPES, default='Single')
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='Available')
 
     def __str__(self):
-        return f"Room {self.room_number} (Floor {self.floor})"
+        return f"Room {self.room_number} (Floor {self.floor}) - {self.room_type} - {self.status}"
+
 
 class Student(models.Model):
     name = models.CharField(max_length=100)
@@ -27,3 +41,13 @@ class Allocation(models.Model):
 
     def __str__(self):
         return f"{self.student.name} → {self.room.room_number}"
+    
+class Feedback(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback from {self.name} ({self.email})"
+

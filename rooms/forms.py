@@ -1,11 +1,11 @@
 from django import forms
-from .models import Room, Student, Allocation
+from .models import Room, Student, Allocation, Feedback
 
 class RoomForm(forms.ModelForm):
     class Meta:
         model = Room
-        fields = ['room_number', 'floor', 'capacity']
-
+        fields = ['room_number', 'floor', 'capacity', 'room_type', 'status']
+        
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
@@ -15,3 +15,8 @@ class AllocationForm(forms.ModelForm):
     class Meta:
         model = Allocation
         fields = ['student', 'room']
+
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        model = Feedback
+        fields = ['name', 'email', 'message']

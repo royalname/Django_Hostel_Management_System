@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Room, Student , Allocation
-from .forms import RoomForm, StudentForm, AllocationForm
+from .models import Room, Student , Allocation, Feedback
+from .forms import RoomForm, StudentForm, AllocationForm, FeedbackForm
 
 
 # Home – Display all rooms and students
@@ -16,7 +16,7 @@ def home(request):
 # ---------- ROOM VIEWS ----------
 
 def list_rooms(request):
-    rooms = Room.objects.all()
+    rooms = Room.objects.all().order_by('room_number')  # Optional: sorted by room number
     return render(request, 'rooms/list_rooms.html', {'rooms': rooms})
 
 def add_room(request):
@@ -29,7 +29,7 @@ def add_room(request):
         form = RoomForm()
     return render(request, 'rooms/add_room.html', {'form': form})
 
-def update_room(request, pk):
+def edit_room(request, pk):
     room = get_object_or_404(Room, pk=pk)
     if request.method == 'POST':
         form = RoomForm(request.POST, instance=room)
@@ -38,7 +38,7 @@ def update_room(request, pk):
             return redirect('list_rooms')
     else:
         form = RoomForm(instance=room)
-    return render(request, 'rooms/update_room.html', {'form': form})
+    return render(request, 'rooms/edit_room.html', {'form': form})
 
 def delete_room(request, pk):
     room = get_object_or_404(Room, pk=pk)
@@ -162,6 +162,19 @@ def is_warden(user):
 def is_admin(user):
     return user.groups.filter(name='Admin').exists()
 
+def submit_feedback(request):
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    else:
+        form = FeedbackForm()
+    return render(request, 'rooms/submit_feedback.html', {'form': form})
+
+def view_feedback(request):
+    feedbacks = Feedback.objects.all()
+    return render(request, 'feedback/view_feedback.html', {'feedbacks': feedbacks})
 
 # ---------- RESTRICTED VIEWS ----------
 
@@ -174,3 +187,9 @@ def warden_view(request):
 @user_passes_test(is_admin)
 def admin_view(request):
     return render(request, 'rooms/admin.html')
+
+@login_required
+@user_passes_test(is_admin)
+def view_feedbacks(request):
+    feedbacks = Feedback.objects.all()
+    return render(request, 'rooms/view_feedbacks.html', {'feedbacks': feedbacks})

@@ -1,11 +1,11 @@
 {% extends 'rooms/base.html' %}
 
 {% block content %}
-  <h2>Add Room</h2>
+  <h2>Edit Room</h2>
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Add Room</button>
+    <button type="submit">Save Changes</button>
   </form>
   <a href="{% url 'list_rooms' %}">Back to Room List</a>
 {% endblock %}

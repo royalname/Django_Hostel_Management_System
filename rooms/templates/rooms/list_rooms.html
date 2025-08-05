@@ -3,22 +3,36 @@
 
 {% block content %}
   <h2>List of Rooms</h2>
+  <a href="{% url 'add_room' %}">➕ Add New Room</a>
+  <br><br>
 
-  <a href="{% url 'add_room' %}" style="display: inline-block; margin-bottom: 10px;">➕ Add New Room</a>
-
-  <ul>
-    {% for room in rooms %}
-      <li>
-        Room: {{ room.room_number }} | 
-        Capacity: {{ room.capacity }} | 
-        Available: {{ room.is_available }}
-
-        <!-- Edit and Delete Links -->
-        <a href="{% url 'edit_room' room.pk %}">✏️ Edit</a> | 
-        <a href="{% url 'delete_room' room.pk %}">🗑️ Delete</a>
-      </li>
-    {% empty %}
-      <li>No rooms available.</li>
-    {% endfor %}
-  </ul>
+  {% if rooms %}
+    <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th>Room Number</th>
+          <th>Room Type</th>
+          <th>Capacity</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for room in rooms %}
+          <tr>
+            <td>{{ room.room_number }}</td>
+            <td>{{ room.room_type }}</td>
+            <td>{{ room.capacity }}</td>
+            <td>{{ room.status }}</td>
+            <td>
+              <a href="{% url 'edit_room' room.pk %}">✏️ Edit</a> |
+              <a href="{% url 'delete_room' room.pk %}">🗑️ Delete</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No rooms available.</p>
+  {% endif %}
 {% endblock %}
