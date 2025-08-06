@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import submit_feedback, view_feedbacks, delete_allocation
+from .views import submit_feedback, view_feedbacks, delete_allocation, signup
 from .views import list_rooms, add_room, edit_room, delete_room
 
 urlpatterns = [
@@ -28,7 +28,9 @@ urlpatterns = [
     path('allocations/delete/<int:pk>/', views.delete_allocation, name='delete_allocation'), # Delete allocation
 
     path('feedback/', submit_feedback, name='submit_feedback'),
-    path('feedbacks/', views.view_feedbacks, name='view_feedbacks'),
+    path('admin/feedbacks/', views.view_feedbacks, name='view_feedbacks'),
+
+    path('signup/', signup, name='signup'),
 ]
 
 

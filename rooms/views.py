@@ -1,16 +1,26 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Room, Student , Allocation, Feedback
-from .forms import RoomForm, StudentForm, AllocationForm, FeedbackForm
+from .forms import RoomForm, StudentForm, AllocationForm, FeedbackForm, SignUpForm
 
 
 # Home – Display all rooms and students
 def home(request):
     rooms = Room.objects.all()
     students = Student.objects.all()
-    return render(request, 'rooms/home.html', {'rooms': rooms, 'students': students})
+    is_admin = False
+    if request.user.is_authenticated:
+        is_admin = request.user.groups.filter(name='Admin').exists()
+
+    context = {
+        'rooms': rooms,
+        'students': students,
+        'is_admin': is_admin,
+    }
+    return render(request, 'rooms/base.html', {'rooms': rooms, 'students': students})
 
 
 # ---------- ROOM VIEWS ----------
@@ -175,6 +185,19 @@ def submit_feedback(request):
 def view_feedback(request):
     feedbacks = Feedback.objects.all()
     return render(request, 'feedback/view_feedback.html', {'feedbacks': feedbacks})
+
+# ----------SIGNUP FORM --------------
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Automatically login after signup
+            return redirect('home')
+    else:
+        form = SignUpForm()
+    return render(request, 'rooms/signup.html', {'form': form})
+
 
 # ---------- RESTRICTED VIEWS ----------
 
