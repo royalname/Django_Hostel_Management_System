@@ -1,13 +1,17 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
-from .views import submit_feedback, view_feedbacks, delete_allocation, signup
+from django.contrib import admin
+from .views import submit_feedback, view_feedbacks, delete_allocation, signup_view
 from .views import list_rooms, add_room, edit_room, delete_room
+from django.contrib.auth import views as auth_views  # ✅ Add this
 
 urlpatterns = [
     path('', views.home, name='home'),                              # Home page
     path('rooms/', views.list_rooms, name='list_rooms'),            # List all rooms
     path('students/list/', views.list_students, name='list_students'),   # List all students
 
+    path('admin/', admin.site.urls),
+   
     path('rooms/add/', views.add_room, name='add_room'),            # Add room
     path('students/add/', views.add_student, name='add_student'),   # Add student
 
@@ -30,7 +34,9 @@ urlpatterns = [
     path('feedback/', submit_feedback, name='submit_feedback'),
     path('admin/feedbacks/', views.view_feedbacks, name='view_feedbacks'),
 
-    path('signup/', signup, name='signup'),
+    path('signup/', signup_view, name='signup'),
+    path('login/', auth_views.LoginView.as_view(template_name='rooms/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 ]
 
 

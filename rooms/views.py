@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Room, Student , Allocation, Feedback
 from .forms import RoomForm, StudentForm, AllocationForm, FeedbackForm, SignUpForm
@@ -20,7 +21,7 @@ def home(request):
         'students': students,
         'is_admin': is_admin,
     }
-    return render(request, 'rooms/base.html', {'rooms': rooms, 'students': students})
+    return render(request, 'rooms/home.html', {'rooms': rooms, 'students': students})
 
 
 # ---------- ROOM VIEWS ----------
@@ -198,6 +199,15 @@ def signup(request):
         form = SignUpForm()
     return render(request, 'rooms/signup.html', {'form': form})
 
+def signup_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')  # Redirect to login after successful signup
+    else:
+        form = UserCreationForm()
+    return render(request, 'rooms/signup.html', {'form': form})
 
 # ---------- RESTRICTED VIEWS ----------
 

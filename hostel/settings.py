@@ -117,7 +117,8 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'rooms', 'static')]
 
 # Authentication redirect URLs
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/accounts/login/'
+LOGOUT_REDIRECT_URL = '/login/'
+LOGIN_REDIRECT_URL = '/rooms/'  # or wherever your homepage is
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
