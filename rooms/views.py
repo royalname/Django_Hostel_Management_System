@@ -64,12 +64,10 @@ def edit_room(request, pk):
         form = RoomForm(request.POST, instance=room)
         if form.is_valid():
             form.save()
-            return redirect('list_rooms')  # or 'home' or wherever you want to redirect
+            return redirect('list_rooms')  # redirect to 'home' 
     else:
         form = RoomForm(instance=room)
     return render(request, 'rooms/room_form.html', {'form': form})
-
-
 
 
 # ---------- STUDENT VIEWS ----------
