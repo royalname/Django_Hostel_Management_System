@@ -2,40 +2,77 @@
 {% load static %}
 
 {% block content %}
-    <h1>Welcome to the Hostel Room Allocation System</h1>
+    <h1>Welcome, {{ user.username }}</h1>
 
-    <h2>Available Rooms</h2>
+    {% if user.profile.role == 'admin' %}
+        <h2>Admin Dashboard</h2>
 
-    {% if rooms %}
-        <ul>
-            {% for room in rooms %}
-                <li>
-                    Room {{ room.room_number }} – 
-                    Capacity: {{ room.capacity }} – 
-                    {% if room.is_available %}Available{% else %}Full{% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No rooms available.</p>
-    {% endif %}
+        <h3>Available Rooms</h3>
+        {% if rooms %}
+            <ul>
+                {% for room in rooms %}
+                    <li>
+                        Room {{ room.room_number }} – 
+                        Capacity: {{ room.capacity }} – 
+                        {% if room.is_available %}Available{% else %}Full{% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No rooms available.</p>
+        {% endif %}
 
-    <hr>
+        <hr>
 
-    <h2>Registered Students</h2>
+        <h3>Registered Students</h3>
+        {% if students %}
+            <ul>
+                {% for student in students %}
+                    <li>
+                        {{ student.name }} – {{ student.email }} – {{ student.contact }} – {{ student.address }}
+                        [<a href="{% url 'update_student' student.id %}">Update</a>]
+                        [<a href="{% url 'delete_student' student.id %}">Delete</a>]
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No students registered yet.</p>
+        {% endif %}
 
-    {% if students %}
-        <ul>
-            {% for student in students %}
-                <li>
-                    {{ student.name }} – {{ student.email }} – {{ student.contact }} – {{ student.address }}
-                    [<a href="{% url 'update_student' student.id %}">Update</a>]
-                    [<a href="{% url 'delete_student' student.id %}">Delete</a>]
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No students registered yet.</p>
+    {% elif user.profile.role == 'warden' %}
+        <h2>Warden Dashboard</h2>
+        <p>Welcome, Warden. You can monitor room allocations.</p>
+
+        <h3>Available Rooms</h3>
+        {% if rooms %}
+            <ul>
+                {% for room in rooms %}
+                    <li>
+                        Room {{ room.room_number }} – 
+                        Capacity: {{ room.capacity }} – 
+                        {% if room.is_available %}Available{% else %}Full{% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No rooms available.</p>
+        {% endif %}
+
+    {% elif user.profile.role == 'student' %}
+        <h2>Student Dashboard</h2>
+        <p>Welcome, {{ user.username }}! Here is your room information:</p>
+
+        {% if student %}
+            <ul>
+                <li>Name: {{ student.name }}</li>
+                <li>Email: {{ student.email }}</li>
+                <li>Contact: {{ student.contact }}</li>
+                <li>Address: {{ student.address }}</li>
+                <li>Room: {{ student.room.room_number }}</li>
+            </ul>
+        {% else %}
+            <p>No room assigned yet.</p>
+        {% endif %}
     {% endif %}
 
 {% endblock %}

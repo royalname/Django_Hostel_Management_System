@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.forms import AuthenticationForm,UserCreationForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Room, Student , Allocation, Feedback
 from .forms import RoomForm, StudentForm, AllocationForm, FeedbackForm, SignUpForm
@@ -71,6 +74,9 @@ def edit_room(request, pk):
 
 
 # ---------- STUDENT VIEWS ----------
+@login_required
+def student_view(request):
+    return render(request, 'studentform.html') 
 
 def list_students(request):
     students = Student.objects.all()
@@ -104,15 +110,6 @@ def delete_student(request, pk):
         student.delete()
         return redirect('list_students')
     return render(request, 'rooms/delete_student.html', {'student': student})
-
-
-# ---------- ROLE CHECKS ----------
-
-def is_warden(user):
-    return user.groups.filter(name='Warden').exists()
-
-def is_admin(user):
-    return user.groups.filter(name='Admin').exists()
 
 # ---------- ALLOCATION VIEWS ----------
 
@@ -181,11 +178,34 @@ def submit_feedback(request):
         form = FeedbackForm()
     return render(request, 'rooms/submit_feedback.html', {'form': form})
 
-def view_feedback(request):
-    feedbacks = Feedback.objects.all()
-    return render(request, 'feedback/view_feedback.html', {'feedbacks': feedbacks})
+@login_required
+def view_feedbacks(request):
+    if request.user.profile.role != 'admin':
+        return HttpResponseForbidden("Only admins can view feedback.")
+    
+    feedbacks = Feedback.objects.all().order_by('-submitted_at')
+    return render(request, 'view_feedbacks.html', {'feedbacks': feedbacks})
 
 # ----------SIGNUP FORM --------------
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            if user.is_superuser:
+                return redirect('admin_view')
+            elif user.groups.filter(name='Warden').exists():
+                return redirect('warden_view')
+            elif user.groups.filter(name='Student').exists():
+                return redirect('student_view')
+            else:
+                return redirect('login')
+        else:
+            return render(request, 'rooms/login.html', {'error': 'Invalid username or password'})
+    return render(request, 'rooms/login.html')
+
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -202,25 +222,69 @@ def signup_view(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('login')  # Redirect to login after successful signup
+            messages.success(request, "Account created successfully. You can now log in.")
+            return redirect('login')
+        else:
+            messages.error(request, "Please correct the error below.")
     else:
         form = UserCreationForm()
+
     return render(request, 'rooms/signup.html', {'form': form})
+
+
+def custom_login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('home')  # Change to your desired redirect
+    else:
+        form = AuthenticationForm()
+    return render(request, 'rooms/login.html', {'form': form})
+
+from django.contrib.auth.views import LoginView
+
+class CustomLoginView(LoginView):
+    template_name = 'login.html'
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 # ---------- RESTRICTED VIEWS ----------
 
 @login_required
-@user_passes_test(is_warden)
-def warden_view(request):
-    return render(request, 'rooms/warden.html')
+def home_view(request):
+    role = request.user.profile.role
 
+    if role == 'admin':
+        rooms = Room.objects.all()
+        students = Student.objects.all()
+        return render(request, 'home.html', {'rooms': rooms, 'students': students})
+
+    elif role == 'warden':
+        rooms = Room.objects.all()
+        return render(request, 'home.html', {'rooms': rooms})
+
+    elif role == 'student':
+        try:
+            student = Student.objects.get(user=request.user)
+        except Student.DoesNotExist:
+            student = None
+        return render(request, 'home.html', {'student': student})
+    
 @login_required
+def warden_view(request):
+    if request.user.profile.role != 'warden':
+        return HttpResponseForbidden("Only wardens can access this page.")
+
+    return render(request, 'warden_dashboard.html')
+
+def is_admin(user):
+    return user.is_superuser
+
 @user_passes_test(is_admin)
 def admin_view(request):
-    return render(request, 'rooms/admin.html')
-
-@login_required
-@user_passes_test(is_admin)
-def view_feedbacks(request):
-    feedbacks = Feedback.objects.all()
-    return render(request, 'rooms/view_feedbacks.html', {'feedbacks': feedbacks})
+    feedbacks =Feedback.objects.all().order_by('-created_at')
+    return render(request, 'adminhome.html', {'feedbacks':feedbacks}) 

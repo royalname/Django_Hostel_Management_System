@@ -1,0 +1,28 @@
+{% extends 'rooms/base.html' %}
+{% load static %}
+
+{% block content %}
+  <h1>Admin Dashboard</h1>
+
+  <p>Welcome, {{ user.username }}! You are logged in as an admin.</p>
+
+  <hr>
+
+  <h2>Feedback Received</h2>
+  {% if feedbacks %}
+    <ul>
+      {% for feedback in feedbacks %}
+        <li>
+          <strong>{{ feedback.user.username }}:</strong> {{ feedback.message }} <br>
+          <small>Submitted on: {{ feedback.created_at }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No feedback submitted yet.</p>
+  {% endif %}
+
+  <hr>
+
+  <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+{% endblock %}
